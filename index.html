@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#080808">
-  <title>Inscrição para o Sorteio</title>
+  <title>Sorteio 50K</title>
 
   <style>
     * {
@@ -87,19 +87,21 @@
       line-height: 1.5;
     }
 
-    .sucesso {
-      color: #6dff9b;
-      font-size: 24px !important;
-    }
-
     .erro {
       color: #ff7777;
+    }
+
+    .confirmacao {
+      font-size: 25px;
+      line-height: 1.5;
+      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
-  <main class="container">
+
+  <main class="container" id="container">
     <h1>Olá! Seja bem vindo 😃</h1>
 
     <p>
@@ -133,6 +135,7 @@
     const campo = document.getElementById("nickname");
     const botao = document.getElementById("botao");
     const mensagem = document.getElementById("mensagem");
+    const container = document.getElementById("container");
 
     formulario.addEventListener("submit", function(event) {
       event.preventDefault();
@@ -169,9 +172,11 @@
         limpar();
 
         if (resultado.sucesso) {
-          formulario.style.display = "none";
-          mensagem.className = "sucesso";
-          mensagem.textContent = "BOA SORTE 🍀";
+          container.innerHTML = `
+            <div class="confirmacao">
+              Participação confirmada. Boa sorte! 🍀
+            </div>
+          `;
         } else {
           mensagem.className = "erro";
           mensagem.textContent =
@@ -197,5 +202,6 @@
       document.body.appendChild(script);
     });
   </script>
+
 </body>
 </html>
