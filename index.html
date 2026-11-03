@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080808">
+  <title>Inscrição para o Sorteio</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #080808;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      padding: 35px 25px;
+      background: #151515;
+      border: 1px solid #292929;
+      border-radius: 22px;
+      box-shadow: 0 15px 45px #0008;
+    }
+
+    h1 {
+      font-size: 27px;
+      margin: 0 0 18px;
+    }
+
+    p {
+      color: #c8c8c8;
+      line-height: 1.5;
+      font-size: 16px;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 17px;
+      border-radius: 12px;
+      border: 1px solid #444;
+      background: #080808;
+      color: white;
+      font-size: 16px;
+      outline: none;
+      margin-bottom: 15px;
+    }
+
+    input:focus {
+      border-color: #fff;
+    }
+
+    button {
+      width: 100%;
+      padding: 17px;
+      border: none;
+      border-radius: 12px;
+      background: #fff;
+      color: #080808;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    #mensagem {
+      margin-top: 22px;
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+
+    .sucesso {
+      color: #6dff9b;
+      font-size: 24px !important;
+    }
+
+    .erro {
+      color: #ff7777;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>Olá! Seja bem vindo 😃</h1>
+
+    <p>
+      Digite seu @ do Instagram para encontrarmos você
+      se for sorteado.
+    </p>
+
+    <form id="formulario">
+      <input
+        id="nickname"
+        type="text"
+        placeholder="Digite seu @ aqui..."
+        maxlength="31"
+        autocomplete="off"
+        required
+      >
+
+      <button id="botao" type="submit">
+        PARTICIPAR DO SORTEIO
+      </button>
+    </form>
+
+    <div id="mensagem" role="status" aria-live="polite"></div>
+  </main>
+
+  <script>
+    const URL_SCRIPT =
+      "https://script.google.com/macros/s/AKfycbwDjcn9rrzWOmxNuM7LOyvMNL0iZOHEyXOHaGoxwrUHGkHcOGrYaVg74MA-xI950rWA/exec";
+
+    const formulario = document.getElementById("formulario");
+    const campo = document.getElementById("nickname");
+    const botao = document.getElementById("botao");
+    const mensagem = document.getElementById("mensagem");
+
+    formulario.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const nickname = campo.value.trim().replace(/^@+/, "");
+
+      if (!/^[a-zA-Z0-9._]{1,30}$/.test(nickname)) {
+        mensagem.className = "erro";
+        mensagem.textContent = "Digite um Instagram válido.";
+        return;
+      }
+
+      botao.disabled = true;
+      botao.textContent = "ENVIANDO...";
+      mensagem.className = "";
+      mensagem.textContent = "Registrando sua inscrição...";
+
+      const callback = "respostaSorteio_" +
+        Date.now() + "_" + Math.floor(Math.random() * 100000);
+
+      const script = document.createElement("script");
+      let finalizado = false;
+
+      function limpar() {
+        finalizado = true;
+        delete window[callback];
+        script.remove();
+        botao.disabled = false;
+        botao.textContent = "PARTICIPAR DO SORTEIO";
+      }
+
+      window[callback] = function(resultado) {
+        if (finalizado) return;
+        limpar();
+
+        if (resultado.sucesso) {
+          formulario.style.display = "none";
+          mensagem.className = "sucesso";
+          mensagem.textContent = "BOA SORTE 🍀";
+        } else {
+          mensagem.className = "erro";
+          mensagem.textContent =
+            resultado.mensagem || "Não foi possível registrar.";
+        }
+      };
+
+      script.onerror = function() {
+        if (finalizado) return;
+        limpar();
+        mensagem.className = "erro";
+        mensagem.textContent =
+          "Erro de conexão. Tente novamente.";
+      };
+
+      const parametros = new URLSearchParams({
+        nickname: nickname,
+        callback: callback
+      });
+
+      script.src = URL_SCRIPT + "?" + parametros.toString();
+
+      document.body.appendChild(script);
+    });
+  </script>
+</body>
+</html>
